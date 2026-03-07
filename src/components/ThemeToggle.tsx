@@ -1,9 +1,23 @@
-import { Sun, Moon, Monitor } from 'lucide-react';
-import { useThemeStore } from '../store/useThemeStore';
-import { Button } from './ui/Button';
+import { Sun, Moon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Button } from "./ui/Button";
 
 export function ThemeToggle() {
-  const { theme, resolvedTheme, toggleTheme } = useThemeStore();
+  const [theme, setTheme] = useState("light");
+
+  useEffect(() => {
+    const saved = localStorage.getItem("theme") || "light";
+    setTheme(saved);
+    document.documentElement.classList.toggle("dark", saved === "dark");
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === "light" ? "dark" : "light";
+
+    setTheme(newTheme);
+    localStorage.setItem("theme", newTheme);
+    document.documentElement.classList.toggle("dark", newTheme === "dark");
+  };
 
   return (
     <Button
@@ -13,13 +27,13 @@ export function ThemeToggle() {
       className="text-zinc-600 hover:text-black dark:text-zinc-400 dark:hover:text-white"
       aria-label="Alternar tema"
     >
-      {theme === 'system' ? (
-        <Monitor className="h-5 w-5" />
-      ) : theme === 'dark' ? (
-        <Moon className="h-5 w-5" />
-      ) : (
+      {theme === 'dark' ? (
         <Sun className="h-5 w-5" />
+      ) : (
+        <Moon className="h-5 w-5" />
       )}
     </Button>
   );
 }
+
+

@@ -1,48 +1,108 @@
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
+
+const shopLinks = [
+  { label: "Todos os Produtos", path: "/products" },
+  { label: "Relógios", path: "/products?category=Relógios" },
+  { label: "Óculos", path: "/products?category=Óculos" },
+  { label: "Bolsas", path: "/products?category=Bolsas" },
+  { label: "Joias", path: "/products?category=Joias" },
+];
+
+const supportLinks = [
+  { label: "Fale Conosco", path: "/contact" },
+  { label: "Informações de Frete", path: "/shipping" },
+  { label: "Devoluções", path: "/returns" },
+  { label: "FAQ", path: "/faq" },
+];
+
+const legalLinks = [
+  { label: "Política de Privacidade", path: "/privacy" },
+  { label: "Termos de Serviço", path: "/terms" },
+];
 
 export function Footer() {
+  const year = new Date().getFullYear();
+
+  const renderLinks = (links: { label: string; path: string }[]) =>
+    links.map((link) => (
+      <li key={link.label}>
+        <Link
+          to={link.path}
+          className="text-sm text-neutral-600 hover:text-black dark:text-neutral-400 dark:hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500"
+        >
+          {link.label}
+        </Link>
+      </li>
+    ));
+
   return (
-    <footer className="border-t border-zinc-200 bg-zinc-50 py-12 dark:border-zinc-800 dark:bg-zinc-950">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
-          <div className="col-span-1 md:col-span-1">
-            <Link to="/" className="text-xl font-bold tracking-tighter text-black dark:text-white">
-              LUXE<span className="font-light">COMMERCE</span>
+    <footer
+      role="contentinfo"
+      className="border-t border-neutral-200 bg-white text-black dark:border-neutral-800 dark:bg-black dark:text-white transition-colors duration-300"
+    >
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-4">
+          {/* Brand */}
+          <div>
+            <Link
+              to="/"
+              className="flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              aria-label="Ir para página inicial"
+            >
+              <img
+                src="/assets/img/shopix-logo-dark.png"
+                alt="Shopix"
+                className="h-25 w-auto"
+              />
             </Link>
-            <p className="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
-              Acessórios de luxo premium para o indivíduo moderno. Artesanato de qualidade, design atemporal.
+
+            <p className="mt-4 text-sm text-neutral-600 dark:text-neutral-400">
+              Acessórios premium para o indivíduo moderno. Design atemporal e
+              qualidade superior.
             </p>
           </div>
-          <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-900 dark:text-zinc-100">Loja</h3>
-            <ul className="mt-4 space-y-2">
-              <li><Link to="/products" className="text-sm text-zinc-500 hover:text-black dark:text-zinc-400 dark:hover:text-white">Todos os Produtos</Link></li>
-              <li><Link to="/products?category=Relógios" className="text-sm text-zinc-500 hover:text-black dark:text-zinc-400 dark:hover:text-white">Relógios</Link></li>
-              <li><Link to="/products?category=Óculos" className="text-sm text-zinc-500 hover:text-black dark:text-zinc-400 dark:hover:text-white">Óculos</Link></li>
-              <li><Link to="/products?category=Bolsas" className="text-sm text-zinc-500 hover:text-black dark:text-zinc-400 dark:hover:text-white">Bolsas</Link></li>
-              <li><Link to="/products?category=Joias" className="text-sm text-zinc-500 hover:text-black dark:text-zinc-400 dark:hover:text-white">Joias</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-900 dark:text-zinc-100">Suporte</h3>
-            <ul className="mt-4 space-y-2">
-              <li><Link to="/contact" className="text-sm text-zinc-500 hover:text-black dark:text-zinc-400 dark:hover:text-white">Fale Conosco</Link></li>
-              <li><Link to="/shipping" className="text-sm text-zinc-500 hover:text-black dark:text-zinc-400 dark:hover:text-white">Informações de Frete</Link></li>
-              <li><Link to="/returns" className="text-sm text-zinc-500 hover:text-black dark:text-zinc-400 dark:hover:text-white">Devoluções</Link></li>
-              <li><Link to="/faq" className="text-sm text-zinc-500 hover:text-black dark:text-zinc-400 dark:hover:text-white">FAQ</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-900 dark:text-zinc-100">Legal</h3>
-            <ul className="mt-4 space-y-2">
-              <li><Link to="/privacy" className="text-sm text-zinc-500 hover:text-black dark:text-zinc-400 dark:hover:text-white">Política de Privacidade</Link></li>
-              <li><Link to="/terms" className="text-sm text-zinc-500 hover:text-black dark:text-zinc-400 dark:hover:text-white">Termos de Serviço</Link></li>
-            </ul>
-          </div>
+
+          {/* Loja */}
+          <nav aria-labelledby="footer-shop">
+            <h2
+              id="footer-shop"
+              className="text-sm font-semibold uppercase tracking-wider text-black dark:text-white"
+            >
+              Loja
+            </h2>
+
+            <ul className="mt-4 space-y-2">{renderLinks(shopLinks)}</ul>
+          </nav>
+
+          {/* Suporte */}
+          <nav aria-labelledby="footer-support">
+            <h2
+              id="footer-support"
+              className="text-sm font-semibold uppercase tracking-wider text-black dark:text-white"
+            >
+              Suporte
+            </h2>
+
+            <ul className="mt-4 space-y-2">{renderLinks(supportLinks)}</ul>
+          </nav>
+
+          {/* Legal */}
+          <nav aria-labelledby="footer-legal">
+            <h2
+              id="footer-legal"
+              className="text-sm font-semibold uppercase tracking-wider text-black dark:text-white"
+            >
+              Legal
+            </h2>
+
+            <ul className="mt-4 space-y-2">{renderLinks(legalLinks)}</ul>
+          </nav>
         </div>
-        <div className="mt-12 border-t border-zinc-200 pt-8 dark:border-zinc-800">
-          <p className="text-center text-sm text-zinc-400 dark:text-zinc-500">
-            &copy; {new Date().getFullYear()} LuxeCommerce Inc. Todos os direitos reservados.
+
+        {/* Bottom */}
+        <div className="mt-12 border-t border-neutral-200 pt-6 dark:border-neutral-800">
+          <p className="text-center text-sm text-neutral-500 dark:text-neutral-400">
+            © {year} Shopix Inc. Todos os direitos reservados.
           </p>
         </div>
       </div>

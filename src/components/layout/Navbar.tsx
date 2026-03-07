@@ -1,114 +1,227 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, User, Menu, X, LogOut, LayoutDashboard } from 'lucide-react';
-import { useState } from 'react';
-import { useAuthStore } from '../../store/useAuthStore';
-import { useLogout } from '../../features/auth/hooks/useAuth';
-import { useCartStore } from '../../store/useCartStore';
-import { Button } from '../ui/Button';
-import { motion, AnimatePresence } from 'motion/react';
-import { ThemeToggle } from '../ThemeToggle';
+import { Link } from "react-router-dom";
+import {
+  ShoppingCart,
+  User,
+  Menu,
+  X,
+  LogOut,
+  LayoutDashboard,
+} from "lucide-react";
+import { useState } from "react";
+import { useAuthStore } from "../../store/useAuthStore";
+import { useLogout } from "../../features/auth/hooks/useAuth";
+import { useCartStore } from "../../store/useCartStore";
+import { Button } from "../ui/Button";
+import { motion, AnimatePresence } from "motion/react";
+import { ThemeToggle } from "../ThemeToggle";
+
+const navItems = [
+  { label: "Loja", path: "/products" },
+  { label: "Relógios", path: "/products?category=Relógios" },
+  { label: "Óculos", path: "/products?category=Óculos" },
+  { label: "Bolsas", path: "/products?category=Bolsas" },
+  { label: "Joias", path: "/products?category=Joias" },
+];
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, isAuthenticated } = useAuthStore();
   const logout = useLogout();
   const { totalItems } = useCartStore();
-  const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
-  };
+  const handleLogout = () => logout();
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-bottom border-zinc-200 bg-white/80 backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-950/80">
+    <nav
+      className="sticky top-0 z-50 w-full border-b border-zinc-800 bg-black/90 backdrop-blur-md"
+      role="navigation"
+      aria-label="Menu principal"
+    >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          <div className="flex items-center">
-            <Link to="/" className="text-2xl font-bold tracking-tighter text-black dark:text-white">
-              LUXE<span className="font-light">COMMERCE</span>
-            </Link>
-          </div>
 
-          <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-8">
-              <Link to="/products" className="text-sm font-medium text-zinc-600 hover:text-black dark:text-zinc-400 dark:hover:text-white">Loja</Link>
-              <Link to="/products?category=Relógios" className="text-sm font-medium text-zinc-600 hover:text-black dark:text-zinc-400 dark:hover:text-white">Relógios</Link>
-              <Link to="/products?category=Óculos" className="text-sm font-medium text-zinc-600 hover:text-black dark:text-zinc-400 dark:hover:text-white">Óculos</Link>
-              <Link to="/products?category=Bolsas" className="text-sm font-medium text-zinc-600 hover:text-black dark:text-zinc-400 dark:hover:text-white">Bolsas</Link>
-              <Link to="/products?category=Joias" className="text-sm font-medium text-zinc-600 hover:text-black dark:text-zinc-400 dark:hover:text-white">Joias</Link>
-            </div>
-          </div>
+          {/* Logo */}
+          <Link
+            to="/"
+            className="flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            aria-label="Ir para página inicial"
+          >
+            <img
+              src="/assets/img/shopix-logo-dark.png"
+              alt="Shopix"
+              className="h-25 w-auto"
+            />
+          </Link>
 
+          {/* Desktop Navigation */}
+          <ul className="hidden md:flex items-center space-x-8 pl-32">
+            {navItems.map((item) => (
+              <li key={item.label}>
+                <Link
+                  to={item.path}
+                  className="text-sm font-medium text-zinc-300 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white transition-colors"
+                >
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+
+          {/* Right Actions */}
           <div className="flex items-center space-x-4">
+
             <ThemeToggle />
-            <Link to="/cart" className="relative p-2 text-zinc-600 hover:text-black dark:text-zinc-400 dark:hover:text-white">
-              <ShoppingCart className="h-6 w-6" />
+
+            {/* Cart */}
+            <Link
+              to="/cart"
+              aria-label={`Carrinho com ${totalItems()} itens`}
+              className="relative p-2 text-zinc-300 hover:text-white focus-visible:ring-2 focus-visible:ring-white transition-colors"
+            >
+              <ShoppingCart className="h-6 w-6" aria-hidden="true" />
+
               {totalItems() > 0 && (
-                <span className="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[10px] font-bold text-white dark:bg-white dark:text-black">
+                <span
+                  aria-live="polite"
+                  className="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-white text-[10px] font-bold text-black"
+                >
                   {totalItems()}
                 </span>
               )}
             </Link>
 
             {isAuthenticated ? (
-              <div className="flex items-center space-x-4">
-                {user?.role === 'admin' && (
-                  <Link to="/admin" className="hidden md:block">
-                    <Button variant="outline" size="sm">
-                      <LayoutDashboard className="mr-2 h-4 w-4" />
+              <div className="flex items-center space-x-3">
+
+                {user?.role === "admin" && (
+                  <Link to="/admin">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="hidden md:flex border-white text-white"
+                    >
+                      <LayoutDashboard
+                        className="mr-2 h-4 w-4"
+                        aria-hidden="true"
+                      />
                       Admin
                     </Button>
                   </Link>
                 )}
-                <Link to="/profile" className="hidden md:block p-2 text-zinc-600 hover:text-black dark:text-zinc-400 dark:hover:text-white">
-                  <User className="h-6 w-6" />
+
+                <Link
+                  to="/profile"
+                  aria-label="Perfil do usuário"
+                  className="hidden md:block p-2 text-zinc-300 hover:text-white focus-visible:ring-2 focus-visible:ring-white"
+                >
+                  <User className="h-6 w-6" aria-hidden="true" />
                 </Link>
-                <button onClick={handleLogout} className="hidden md:block p-2 text-zinc-600 hover:text-black dark:text-zinc-400 dark:hover:text-white">
-                  <LogOut className="h-6 w-6" />
+
+                <button
+                  onClick={handleLogout}
+                  aria-label="Sair da conta"
+                  className="hidden md:block p-2 text-zinc-300 hover:text-white focus-visible:ring-2 focus-visible:ring-white"
+                >
+                  <LogOut className="h-6 w-6" aria-hidden="true" />
                 </button>
+
               </div>
             ) : (
-              <Link to="/login" className="hidden md:block">
-                <Button size="sm">Entrar</Button>
+              <Link to="/login">
+                <Button
+                  size="sm"
+                  className="hidden md:block bg-white text-black hover:bg-zinc-200"
+                >
+                  Entrar
+                </Button>
               </Link>
             )}
 
-            <div className="md:hidden">
-              <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 text-zinc-600 hover:text-black">
-                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-              </button>
-            </div>
+            {/* Mobile menu button */}
+            <button
+              aria-label="Abrir menu"
+              aria-expanded={isMenuOpen}
+              aria-controls="mobile-menu"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="md:hidden p-2 text-zinc-300 hover:text-white focus-visible:ring-2 focus-visible:ring-white"
+            >
+              {isMenuOpen ? (
+                <X className="h-6 w-6" aria-hidden="true" />
+              ) : (
+                <Menu className="h-6 w-6" aria-hidden="true" />
+              )}
+            </button>
+
           </div>
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile Menu */}
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
+            id="mobile-menu"
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
+            animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-t border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950"
+            className="md:hidden border-t border-zinc-800 bg-black"
           >
-            <div className="space-y-1 px-2 pt-2 pb-3 sm:px-3">
-              <Link to="/products" className="block rounded-md px-3 py-2 text-base font-medium text-zinc-600 hover:bg-zinc-50 hover:text-black dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white">Loja</Link>
-              <Link to="/products?category=Relógios" className="block rounded-md px-3 py-2 text-base font-medium text-zinc-600 hover:bg-zinc-50 hover:text-black dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white">Relógios</Link>
-              <Link to="/products?category=Óculos" className="block rounded-md px-3 py-2 text-base font-medium text-zinc-600 hover:bg-zinc-50 hover:text-black dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white">Óculos</Link>
-              <Link to="/products?category=Bolsas" className="block rounded-md px-3 py-2 text-base font-medium text-zinc-600 hover:bg-zinc-50 hover:text-black dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white">Bolsas</Link>
-              <Link to="/products?category=Joias" className="block rounded-md px-3 py-2 text-base font-medium text-zinc-600 hover:bg-zinc-50 hover:text-black dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white">Joias</Link>
+            <ul className="space-y-1 px-3 pt-2 pb-3">
+
+              {navItems.map((item) => (
+                <li key={item.label}>
+                  <Link
+                    to={item.path}
+                    className="block px-3 py-2 text-zinc-300 hover:bg-zinc-900 hover:text-white"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+
               {isAuthenticated ? (
                 <>
-                  <Link to="/profile" className="block rounded-md px-3 py-2 text-base font-medium text-zinc-600 hover:bg-zinc-50 hover:text-black dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white">Perfil</Link>
-                  {user?.role === 'admin' && (
-                    <Link to="/admin" className="block rounded-md px-3 py-2 text-base font-medium text-zinc-600 hover:bg-zinc-50 hover:text-black dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white">Painel Admin</Link>
+                  <li>
+                    <Link
+                      to="/profile"
+                      className="block px-3 py-2 text-zinc-300 hover:bg-zinc-900 hover:text-white"
+                    >
+                      Perfil
+                    </Link>
+                  </li>
+
+                  {user?.role === "admin" && (
+                    <li>
+                      <Link
+                        to="/admin"
+                        className="block px-3 py-2 text-zinc-300 hover:bg-zinc-900 hover:text-white"
+                      >
+                        Painel Admin
+                      </Link>
+                    </li>
                   )}
-                  <button onClick={handleLogout} className="block w-full text-left rounded-md px-3 py-2 text-base font-medium text-zinc-600 hover:bg-zinc-50 hover:text-black dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white">Sair</button>
+
+                  <li>
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-3 py-2 text-zinc-300 hover:bg-zinc-900 hover:text-white"
+                    >
+                      Sair
+                    </button>
+                  </li>
                 </>
               ) : (
-                <Link to="/login" className="block rounded-md px-3 py-2 text-base font-medium text-zinc-600 hover:bg-zinc-50 hover:text-black dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white">Entrar</Link>
+                <li>
+                  <Link
+                    to="/login"
+                    className="block px-3 py-2 text-zinc-300 hover:bg-zinc-900 hover:text-white"
+                  >
+                    Entrar
+                  </Link>
+                </li>
               )}
-            </div>
+
+            </ul>
           </motion.div>
         )}
       </AnimatePresence>
