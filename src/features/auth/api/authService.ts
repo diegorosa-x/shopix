@@ -16,6 +16,18 @@ function mapProfileToUser(profile: any, email: string): User {
   };
 }
 
+async function getProfileById(userId: string) {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (error) throw error;
+
+  return data;
+}
+
 export const authService = {
   async login(email: string, password: string): Promise<AuthResponse> {
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -28,13 +40,11 @@ export const authService = {
       throw new Error("Sessão não iniciada.");
     }
 
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", data.user.id)
-      .single();
+    const profile = await getProfileById(data.user.id);
 
-    if (profileError) throw profileError;
+    if (!profile) {
+      throw new Error("Perfil do usuário não encontrado.");
+    }
 
     return {
       user: mapProfileToUser(profile, data.user.email ?? ""),
@@ -51,9 +61,7 @@ export const authService = {
       email,
       password,
       options: {
-        data: {
-          name,
-        },
+        data: { name },
       },
     });
 
@@ -62,13 +70,8 @@ export const authService = {
       throw new Error("Conta criada, mas a sessão não foi iniciada.");
     }
 
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", data.user.id)
-      .maybeSingle();
+    const profile = await getProfileById(data.user.id);
 
-    if (profileError) throw profileError;
     if (!profile) {
       throw new Error("Perfil do usuário não encontrado.");
     }
@@ -93,13 +96,8 @@ export const authService = {
     if (error) throw error;
     if (!authUser) return null;
 
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", authUser.id)
-      .maybeSingle();
+    const profile = await getProfileById(authUser.id);
 
-    if (profileError) throw profileError;
     if (!profile) return null;
 
     return mapProfileToUser(profile, authUser.email ?? "");

@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useAuthStore } from "../../store/useAuthStore";
-import { useLogout } from "../../features/auth/hooks/useAuth";
+import { supabase } from "../../core/api/supabase";
 import { useCartStore } from "../../store/useCartStore";
 import { Button } from "../ui/Button";
 import { motion, AnimatePresence } from "motion/react";
@@ -26,11 +26,13 @@ const navItems = [
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, isAuthenticated } = useAuthStore();
-  const logoutMutation = useLogout();
+  const logout = useAuthStore((state) => state.logout);
   const { totalItems } = useCartStore();
 
-  const handleLogout = () => {
-    logoutMutation.mutate();
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    logout();
+    setIsMenuOpen(false);
   };
 
   return (
@@ -95,7 +97,10 @@ export function Navbar() {
                       size="sm"
                       className="hidden border-white text-white md:flex"
                     >
-                      <LayoutDashboard className="mr-2 h-4 w-4" aria-hidden="true" />
+                      <LayoutDashboard
+                        className="mr-2 h-4 w-4"
+                        aria-hidden="true"
+                      />
                       Admin
                     </Button>
                   </Link>
@@ -113,7 +118,6 @@ export function Navbar() {
                   onClick={handleLogout}
                   aria-label="Sair da conta"
                   className="hidden p-2 text-zinc-300 hover:text-white focus-visible:ring-2 focus-visible:ring-white md:block"
-                  disabled={logoutMutation.isPending}
                 >
                   <LogOut className="h-6 w-6" aria-hidden="true" />
                 </button>
@@ -161,6 +165,7 @@ export function Navbar() {
                   <Link
                     to={item.path}
                     className="block px-3 py-2 text-zinc-300 hover:bg-zinc-900 hover:text-white"
+                    onClick={() => setIsMenuOpen(false)}
                   >
                     {item.label}
                   </Link>
@@ -173,6 +178,7 @@ export function Navbar() {
                     <Link
                       to="/profile"
                       className="block px-3 py-2 text-zinc-300 hover:bg-zinc-900 hover:text-white"
+                      onClick={() => setIsMenuOpen(false)}
                     >
                       Perfil
                     </Link>
@@ -183,6 +189,7 @@ export function Navbar() {
                       <Link
                         to="/admin"
                         className="block px-3 py-2 text-zinc-300 hover:bg-zinc-900 hover:text-white"
+                        onClick={() => setIsMenuOpen(false)}
                       >
                         Painel Admin
                       </Link>
@@ -193,7 +200,6 @@ export function Navbar() {
                     <button
                       onClick={handleLogout}
                       className="block w-full px-3 py-2 text-left text-zinc-300 hover:bg-zinc-900 hover:text-white"
-                      disabled={logoutMutation.isPending}
                     >
                       Sair
                     </button>
@@ -204,6 +210,7 @@ export function Navbar() {
                   <Link
                     to="/login"
                     className="block px-3 py-2 text-zinc-300 hover:bg-zinc-900 hover:text-white"
+                    onClick={() => setIsMenuOpen(false)}
                   >
                     Entrar
                   </Link>

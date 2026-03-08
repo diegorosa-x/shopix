@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -15,7 +15,6 @@ import {
 } from "../components/ui/Card";
 import { authService } from "../features/auth/api/authService";
 import { useAuthStore } from "../store/useAuthStore";
-import { useNavigate } from "react-router-dom";
 
 const registerSchema = z.object({
   name: z.string().min(2, "Nome muito curto"),
@@ -28,7 +27,7 @@ type RegisterForm = z.infer<typeof registerSchema>;
 export default function Register() {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const setAuth = useAuthStore((state) => state.setAuth);
+  const setUser = useAuthStore((state) => state.setUser);
 
   const {
     register,
@@ -39,6 +38,8 @@ export default function Register() {
   });
 
   const onSubmit = async (data: RegisterForm) => {
+    setError(null);
+
     try {
       const response = await authService.register(
         data.name,
@@ -46,11 +47,11 @@ export default function Register() {
         data.password,
       );
 
-      setAuth(response.user, response.token);
+      setUser(response.user, response.token);
 
       navigate("/");
     } catch (err: any) {
-      setError(err.message || "Erro ao criar conta");
+      setError(err?.message || "Erro ao criar conta");
     }
   };
 
@@ -68,7 +69,7 @@ export default function Register() {
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               {error && (
-                <div className="rounded-md bg-red-50 p-3 text-sm text-red-600">
+                <div className="rounded-md bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/30 dark:text-red-400">
                   {error}
                 </div>
               )}
@@ -103,7 +104,7 @@ export default function Register() {
           </CardContent>
 
           <CardFooter>
-            <p className="text-sm text-zinc-500">
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
               Já tem conta?{" "}
               <Link
                 to="/login"

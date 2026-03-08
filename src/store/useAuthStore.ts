@@ -1,16 +1,16 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { User } from "../types";
+import type { User } from "../types";
 
 interface AuthState {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  setAuth: (user: User, token: string) => void;
-  setUser: (user: User | null, token: string | null) => void;
-  setLoading: (loading: boolean) => void;
+
+  setUser: (user: User, token: string) => void;
   logout: () => void;
+  setLoading: (loading: boolean) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -21,25 +21,12 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: true,
 
-      setAuth: (user, token) =>
+      setUser: (user, token) =>
         set({
           user,
           token,
           isAuthenticated: true,
           isLoading: false,
-        }),
-
-      setUser: (user, token) =>
-        set({
-          user,
-          token,
-          isAuthenticated: !!user,
-          isLoading: false,
-        }),
-
-      setLoading: (loading) =>
-        set({
-          isLoading: loading,
         }),
 
       logout: () =>
@@ -48,6 +35,11 @@ export const useAuthStore = create<AuthState>()(
           token: null,
           isAuthenticated: false,
           isLoading: false,
+        }),
+
+      setLoading: (loading) =>
+        set({
+          isLoading: loading,
         }),
     }),
     {

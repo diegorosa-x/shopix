@@ -8,7 +8,8 @@ import {
   LogOut,
 } from "lucide-react";
 import { cn } from "../../utils";
-import { useLogout } from "../../features/auth/hooks/useAuth";
+import { supabase } from "../../core/api/supabase";
+import { useAuthStore } from "../../store/useAuthStore";
 
 const navItems = [
   { name: "Painel", href: "/admin", icon: LayoutDashboard },
@@ -19,11 +20,15 @@ const navItems = [
 ];
 
 export function AdminSidebar() {
-  const logout = useLogout();
+  const logout = useAuthStore((state) => state.logout);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    logout();
+  };
 
   return (
-    <aside className="hidden md:flex flex-col h-screen w-64 border-r border-neutral-200 bg-white text-black dark:border-neutral-800 dark:bg-black dark:text-white transition-colors duration-300">
-      {/* Logo */}
+    <aside className="hidden h-screen w-64 flex-col border-r border-neutral-200 bg-white text-black transition-colors duration-300 dark:border-neutral-800 dark:bg-black dark:text-white md:flex">
       <div className="flex h-16 items-center border-b border-neutral-200 px-6 dark:border-neutral-800">
         <Link
           to="/"
@@ -33,43 +38,47 @@ export function AdminSidebar() {
           <img
             src="/assets/img/shopix-logo-dark.png"
             alt="Shopix"
-            className="h-25 w-auto"
+            className="h-10 w-auto dark:hidden"
+          />
+          <img
+            src="/assets/img/shopix-logo-light.png"
+            alt="Shopix"
+            className="hidden h-10 w-auto dark:block"
           />
         </Link>
       </div>
 
-      {/* Navigation */}
-      <nav aria-label="Admin navigation" className="flex-1 space-y-1 px-4 py-6">
-        {navItems.map((item) => (
-          <NavLink
-            key={item.name}
-            to={item.href}
-            end={item.href === "/admin"}
-            className={({ isActive }) =>
-              cn(
-                "group flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                isActive
-                  ? "bg-neutral-200 text-black dark:bg-neutral-800 dark:text-white"
-                  : "text-neutral-600 hover:bg-neutral-100 hover:text-black dark:text-neutral-400 dark:hover:bg-neutral-900 dark:hover:text-white",
-              )
-            }
-          >
-            <item.icon
-              className="mr-3 h-5 w-5 flex-shrink-0"
-              aria-hidden="true"
-            />
-            {item.name}
-          </NavLink>
-        ))}
+      <nav className="flex-1 space-y-1 p-4">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+
+          return (
+            <NavLink
+              key={item.name}
+              to={item.href}
+              end={item.href === "/admin"}
+              className={({ isActive }) =>
+                cn(
+                  "flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                  isActive
+                    ? "bg-neutral-900 text-white dark:bg-white dark:text-black"
+                    : "text-neutral-600 hover:bg-neutral-100 hover:text-black dark:text-neutral-300 dark:hover:bg-neutral-900 dark:hover:text-white",
+                )
+              }
+            >
+              <Icon className="mr-3 h-4 w-4" />
+              {item.name}
+            </NavLink>
+          );
+        })}
       </nav>
 
-      {/* Logout */}
       <div className="border-t border-neutral-200 p-4 dark:border-neutral-800">
         <button
-          onClick={logout}
-          className="group flex w-full items-center rounded-md px-3 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-100 hover:text-black dark:text-neutral-400 dark:hover:bg-neutral-900 dark:hover:text-white transition-colors"
+          onClick={handleLogout}
+          className="flex w-full items-center rounded-lg px-3 py-2 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-black dark:text-neutral-300 dark:hover:bg-neutral-900 dark:hover:text-white"
         >
-          <LogOut className="mr-3 h-5 w-5 flex-shrink-0" aria-hidden="true" />
+          <LogOut className="mr-3 h-4 w-4" />
           Sair
         </button>
       </div>
