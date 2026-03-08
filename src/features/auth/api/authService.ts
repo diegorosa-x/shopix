@@ -42,7 +42,11 @@ export const authService = {
     };
   },
 
-  async register(name: string, email: string, password: string): Promise<AuthResponse> {
+  async register(
+    name: string,
+    email: string,
+    password: string,
+  ): Promise<AuthResponse> {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -62,9 +66,12 @@ export const authService = {
       .from("profiles")
       .select("*")
       .eq("id", data.user.id)
-      .single();
+      .maybeSingle();
 
     if (profileError) throw profileError;
+    if (!profile) {
+      throw new Error("Perfil do usuário não encontrado.");
+    }
 
     return {
       user: mapProfileToUser(profile, data.user.email ?? ""),
@@ -90,9 +97,10 @@ export const authService = {
       .from("profiles")
       .select("*")
       .eq("id", authUser.id)
-      .single();
+      .maybeSingle();
 
     if (profileError) throw profileError;
+    if (!profile) return null;
 
     return mapProfileToUser(profile, authUser.email ?? "");
   },
