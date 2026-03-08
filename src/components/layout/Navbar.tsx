@@ -17,10 +17,10 @@ import { ThemeToggle } from "../ThemeToggle";
 
 const navItems = [
   { label: "Loja", path: "/products" },
-  { label: "Relógios", path: "/products?category=Relógios" },
-  { label: "Óculos", path: "/products?category=Óculos" },
-  { label: "Bolsas", path: "/products?category=Bolsas" },
-  { label: "Joias", path: "/products?category=Joias" },
+  { label: "Relógios", path: "/products?category=watches" },
+  { label: "Óculos", path: "/products?category=glasses" },
+  { label: "Bolsas", path: "/products?category=shoulder-bags" },
+  { label: "Joias", path: "/products?category=accessories" },
 ];
 
 export function Navbar() {
