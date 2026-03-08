@@ -16,7 +16,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { ThemeToggle } from "../ThemeToggle";
 
 const navItems = [
-  { label: "Loja", path: "/products" },
+  { label: "Catalogo", path: "/products" },
   { label: "Relógios", path: "/products?category=watches" },
   { label: "Óculos", path: "/products?category=glasses" },
   { label: "Bolsas", path: "/products?category=shoulder-bags" },
@@ -26,10 +26,12 @@ const navItems = [
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, isAuthenticated } = useAuthStore();
-  const logout = useLogout();
+  const logoutMutation = useLogout();
   const { totalItems } = useCartStore();
 
-  const handleLogout = () => logout();
+  const handleLogout = () => {
+    logoutMutation.mutate();
+  };
 
   return (
     <nav
@@ -39,8 +41,6 @@ export function Navbar() {
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-
-          {/* Logo */}
           <Link
             to="/"
             className="flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
@@ -53,13 +53,12 @@ export function Navbar() {
             />
           </Link>
 
-          {/* Desktop Navigation */}
-          <ul className="hidden md:flex items-center space-x-8 pl-32">
+          <ul className="hidden items-center space-x-8 pl-32 md:flex">
             {navItems.map((item) => (
               <li key={item.label}>
                 <Link
                   to={item.path}
-                  className="text-sm font-medium text-zinc-300 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white transition-colors"
+                  className="text-sm font-medium text-zinc-300 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                 >
                   {item.label}
                 </Link>
@@ -67,16 +66,13 @@ export function Navbar() {
             ))}
           </ul>
 
-          {/* Right Actions */}
           <div className="flex items-center space-x-4">
-
             <ThemeToggle />
 
-            {/* Cart */}
             <Link
               to="/cart"
               aria-label={`Carrinho com ${totalItems()} itens`}
-              className="relative p-2 text-zinc-300 hover:text-white focus-visible:ring-2 focus-visible:ring-white transition-colors"
+              className="relative p-2 text-zinc-300 transition-colors hover:text-white focus-visible:ring-2 focus-visible:ring-white"
             >
               <ShoppingCart className="h-6 w-6" aria-hidden="true" />
 
@@ -92,18 +88,14 @@ export function Navbar() {
 
             {isAuthenticated ? (
               <div className="flex items-center space-x-3">
-
                 {user?.role === "admin" && (
                   <Link to="/admin">
                     <Button
                       variant="outline"
                       size="sm"
-                      className="hidden md:flex border-white text-white"
+                      className="hidden border-white text-white md:flex"
                     >
-                      <LayoutDashboard
-                        className="mr-2 h-4 w-4"
-                        aria-hidden="true"
-                      />
+                      <LayoutDashboard className="mr-2 h-4 w-4" aria-hidden="true" />
                       Admin
                     </Button>
                   </Link>
@@ -112,7 +104,7 @@ export function Navbar() {
                 <Link
                   to="/profile"
                   aria-label="Perfil do usuário"
-                  className="hidden md:block p-2 text-zinc-300 hover:text-white focus-visible:ring-2 focus-visible:ring-white"
+                  className="hidden p-2 text-zinc-300 hover:text-white focus-visible:ring-2 focus-visible:ring-white md:block"
                 >
                   <User className="h-6 w-6" aria-hidden="true" />
                 </Link>
@@ -120,30 +112,29 @@ export function Navbar() {
                 <button
                   onClick={handleLogout}
                   aria-label="Sair da conta"
-                  className="hidden md:block p-2 text-zinc-300 hover:text-white focus-visible:ring-2 focus-visible:ring-white"
+                  className="hidden p-2 text-zinc-300 hover:text-white focus-visible:ring-2 focus-visible:ring-white md:block"
+                  disabled={logoutMutation.isPending}
                 >
                   <LogOut className="h-6 w-6" aria-hidden="true" />
                 </button>
-
               </div>
             ) : (
               <Link to="/login">
                 <Button
                   size="sm"
-                  className="hidden md:block bg-white text-black hover:bg-zinc-200"
+                  className="hidden bg-white text-black hover:bg-zinc-200 md:block"
                 >
                   Entrar
                 </Button>
               </Link>
             )}
 
-            {/* Mobile menu button */}
             <button
               aria-label="Abrir menu"
               aria-expanded={isMenuOpen}
               aria-controls="mobile-menu"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 text-zinc-300 hover:text-white focus-visible:ring-2 focus-visible:ring-white"
+              className="p-2 text-zinc-300 hover:text-white focus-visible:ring-2 focus-visible:ring-white md:hidden"
             >
               {isMenuOpen ? (
                 <X className="h-6 w-6" aria-hidden="true" />
@@ -151,12 +142,10 @@ export function Navbar() {
                 <Menu className="h-6 w-6" aria-hidden="true" />
               )}
             </button>
-
           </div>
         </div>
       </div>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
@@ -164,10 +153,9 @@ export function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-t border-zinc-800 bg-black"
+            className="border-t border-zinc-800 bg-black md:hidden"
           >
             <ul className="space-y-1 px-3 pt-2 pb-3">
-
               {navItems.map((item) => (
                 <li key={item.label}>
                   <Link
@@ -204,7 +192,8 @@ export function Navbar() {
                   <li>
                     <button
                       onClick={handleLogout}
-                      className="block w-full text-left px-3 py-2 text-zinc-300 hover:bg-zinc-900 hover:text-white"
+                      className="block w-full px-3 py-2 text-left text-zinc-300 hover:bg-zinc-900 hover:text-white"
+                      disabled={logoutMutation.isPending}
                     >
                       Sair
                     </button>
@@ -220,7 +209,6 @@ export function Navbar() {
                   </Link>
                 </li>
               )}
-
             </ul>
           </motion.div>
         )}

@@ -12,16 +12,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const initAuth = async () => {
       setLoading(true);
 
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        logout();
+        return;
+      }
+
       try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-
-        if (!session) {
-          logout();
-          return;
-        }
-
         const user = await authService.getCurrentUser();
 
         if (!user) {
@@ -30,8 +30,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         setUser(user, session.access_token);
-      } catch (error) {
-        console.error("Erro ao inicializar autenticação:", error);
+      } catch {
         logout();
       }
     };
@@ -41,25 +40,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      try {
-        if (event === "SIGNED_OUT") {
-          logout();
-          return;
-        }
+      if (event === "SIGNED_OUT") {
+        logout();
+      }
 
-        if (session) {
-          const user = await authService.getCurrentUser();
-
-          if (!user) {
-            logout();
-            return;
-          }
-
+      if (event === "SIGNED_IN" && session) {
+        const user = await authService.getCurrentUser();
+        if (user) {
           setUser(user, session.access_token);
         }
-      } catch (error) {
-        console.error("Erro ao sincronizar autenticação:", error);
-        logout();
       }
     });
 

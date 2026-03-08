@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { motion } from "motion/react";
 import { useLogin } from "../features/auth/hooks/useAuth";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
@@ -14,7 +15,6 @@ import {
   CardContent,
   CardFooter,
 } from "../components/ui/Card";
-import { motion } from "motion/react";
 
 const loginSchema = z.object({
   email: z.string().email("Endereço de e-mail inválido"),
@@ -33,17 +33,14 @@ export default function Login() {
     formState: { errors },
   } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "admin@luxe.com",
-      password: "admin123",
-    },
   });
 
-  const onSubmit = async (data: LoginForm) => {
+  const onSubmit = (data: LoginForm) => {
     setError(null);
+
     loginMutation.mutate(data, {
       onError: (err: any) => {
-        setError(err.message || "Falha ao entrar");
+        setError(err?.message || "Falha ao entrar");
       },
     });
   };
@@ -55,12 +52,8 @@ export default function Login() {
         animate={{ opacity: 1, scale: 1 }}
         className="w-full max-w-md"
       >
-        <div className="flex justify-center align-center ">
-          <Link
-            to="/"
-            className="flex items-center "
-            aria-label="Ir para página inicial"
-          >
+        <div className="flex justify-center">
+          <Link to="/" aria-label="Ir para página inicial">
             <img
               src="/assets/img/shopix-logo-dark.png"
               alt="Shopix"
@@ -76,20 +69,23 @@ export default function Login() {
               Insira suas credenciais para acessar sua conta
             </CardDescription>
           </CardHeader>
+
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               {error && (
-                <div className="rounded-md bg-red-50 p-3 text-sm font-medium text-red-600 dark:bg-red-900/30 dark:text-red-400">
+                <div className="rounded-md bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/30 dark:text-red-400">
                   {error}
                 </div>
               )}
+
               <Input
                 label="E-mail"
                 type="email"
-                placeholder="nome@exemplo.com"
+                placeholder="email@exemplo.com"
                 error={errors.email?.message}
                 {...register("email")}
               />
+
               <Input
                 label="Senha"
                 type="password"
@@ -97,30 +93,26 @@ export default function Login() {
                 error={errors.password?.message}
                 {...register("password")}
               />
+
               <Button
                 type="submit"
                 className="w-full"
                 isLoading={loginMutation.isPending}
+                disabled={loginMutation.isPending}
               >
                 Entrar
               </Button>
             </form>
           </CardContent>
-          <CardFooter className="flex flex-col space-y-4 border-t border-zinc-100 pt-6 dark:border-zinc-800">
-            <div className="text-center text-sm text-zinc-500 dark:text-zinc-400">
-              Não tem uma conta?{" "}
-              <Link
-                to="/register"
-                className="font-semibold text-black hover:underline dark:text-white"
-              >
-                Crie uma agora
-              </Link>
-            </div>
-            <div className="rounded-md bg-zinc-100 p-3 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
-              <p className="font-bold">Credenciais de Demonstração:</p>
-              <p>E-mail: admin@luxe.com</p>
-              <p>Senha: admin123</p>
-            </div>
+
+          <CardFooter className="text-center text-sm text-zinc-500 dark:text-zinc-400">
+            Não tem uma conta?{" "}
+            <Link
+              to="/register"
+              className="font-semibold text-black hover:underline dark:text-white"
+            >
+              Crie uma agora
+            </Link>
           </CardFooter>
         </Card>
       </motion.div>

@@ -14,6 +14,7 @@ const ProductDetails = lazy(() => import("../../pages/ProductDetails"));
 const Cart = lazy(() => import("../../pages/Cart"));
 const Checkout = lazy(() => import("../../pages/Checkout"));
 const Login = lazy(() => import("../../pages/Login"));
+const Register = lazy(() => import("../../pages/Register"));
 const Profile = lazy(() => import("../../pages/Profile"));
 
 // Admin Pages
@@ -63,7 +64,11 @@ function AdminLayout({ children }: { children: React.ReactNode }) {
 }
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, isLoading } = useAuthStore();
+
+  if (isLoading) {
+    return <AppShellLoader />;
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -73,7 +78,11 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated, user, isLoading } = useAuthStore();
+
+  if (isLoading) {
+    return <AppShellLoader />;
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -127,6 +136,7 @@ export function AppRouter() {
         />
 
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         <Route
           path="/checkout"

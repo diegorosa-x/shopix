@@ -1,34 +1,99 @@
-import { MOCK_USER } from '../../../mock/data';
-import { sleep } from '../../../utils';
-import { User } from '../../../core/types';
+import { supabase } from "../../../core/api/supabase";
+import type { User } from "../../../types";
 
 export interface AuthResponse {
   user: User;
   token: string;
 }
 
+function mapProfileToUser(profile: any, email: string): User {
+  return {
+    id: profile.id,
+    email,
+    name: profile.name ?? email.split("@")[0],
+    role: profile.role ?? "user",
+    avatar: profile.avatar_url ?? "",
+  };
+}
+
 export const authService = {
   async login(email: string, password: string): Promise<AuthResponse> {
-    await sleep(1000);
-    if (email === 'admin@luxe.com' && password === 'admin123') {
-      return {
-        user: MOCK_USER,
-        token: 'mock-jwt-token',
-      };
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) throw error;
+    if (!data.user || !data.session) {
+      throw new Error("Sessão não iniciada.");
     }
-    throw new Error('Invalid credentials');
+
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", data.user.id)
+      .single();
+
+    if (profileError) throw profileError;
+
+    return {
+      user: mapProfileToUser(profile, data.user.email ?? ""),
+      token: data.session.access_token,
+    };
   },
 
   async register(name: string, email: string, password: string): Promise<AuthResponse> {
-    await sleep(1500);
-    return {
-      user: {
-        id: Math.random().toString(36).substr(2, 9),
-        name,
-        email,
-        role: 'user',
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          name,
+        },
       },
-      token: 'mock-jwt-token',
+    });
+
+    if (error) throw error;
+    if (!data.user || !data.session) {
+      throw new Error("Conta criada, mas a sessão não foi iniciada.");
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", data.user.id)
+      .single();
+
+    if (profileError) throw profileError;
+
+    return {
+      user: mapProfileToUser(profile, data.user.email ?? ""),
+      token: data.session.access_token,
     };
-  }
+  },
+
+  async logout() {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+  },
+
+  async getCurrentUser(): Promise<User | null> {
+    const {
+      data: { user: authUser },
+      error,
+    } = await supabase.auth.getUser();
+
+    if (error) throw error;
+    if (!authUser) return null;
+
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", authUser.id)
+      .single();
+
+    if (profileError) throw profileError;
+
+    return mapProfileToUser(profile, authUser.email ?? "");
+  },
 };
