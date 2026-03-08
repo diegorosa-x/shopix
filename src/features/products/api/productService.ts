@@ -12,7 +12,7 @@ type ProductRow = {
   name: string;
   slug: string;
   description: string | null;
-  price: number;
+  price: number | null;
   category_id: string | null;
   brand: string | null;
   main_image: string | null;
@@ -50,9 +50,11 @@ function normalizeCategory(categories: ProductRow["categories"]): {
   slug?: string;
 } {
   if (!categories) return {};
+
   if (Array.isArray(categories)) {
     return categories[0] ?? {};
   }
+
   return categories;
 }
 
@@ -102,6 +104,7 @@ function applyClientFilters(products: Product[], filters: ProductFilters): Produ
 
   if (filters.search) {
     const search = filters.search.toLowerCase().trim();
+
     filtered = filtered.filter(
       (product) =>
         product.name.toLowerCase().includes(search) ||
@@ -135,29 +138,26 @@ function applyClientFilters(products: Product[], filters: ProductFilters): Produ
   return filtered;
 }
 
+const productSelect = `
+  *,
+  categories (
+    id,
+    name,
+    slug
+  ),
+  product_images (
+    id,
+    image_url,
+    position
+  )
+`;
+
 export const productService = {
   async getProducts(filters: ProductFilters = {}): Promise<Product[]> {
     const { data, error } = await supabase
       .from("products")
-      .select(
-        `
-        *,
-        categories (
-          id,
-          name,
-          slug
-        ),
-        product_images (
-          id,
-          image_url,
-          position
-        )
-      `,
-      )
+      .select(productSelect)
       .order("created_at", { ascending: false });
-
-    console.log("SUPABASE RAW DATA:", data);
-    console.log("SUPABASE ERROR:", error);
 
     if (error) throw error;
 
@@ -168,21 +168,7 @@ export const productService = {
   async getProductById(id: string): Promise<Product> {
     const { data, error } = await supabase
       .from("products")
-      .select(
-        `
-        *,
-        categories (
-          id,
-          name,
-          slug
-        ),
-        product_images (
-          id,
-          image_url,
-          position
-        )
-      `,
-      )
+      .select(productSelect)
       .eq("id", id)
       .single();
 
@@ -194,21 +180,7 @@ export const productService = {
   async getFeaturedProducts(): Promise<Product[]> {
     const { data, error } = await supabase
       .from("products")
-      .select(
-        `
-        *,
-        categories (
-          id,
-          name,
-          slug
-        ),
-        product_images (
-          id,
-          image_url,
-          position
-        )
-      `,
-      )
+      .select(productSelect)
       .eq("is_featured", true)
       .order("created_at", { ascending: false });
 
@@ -232,21 +204,7 @@ export const productService = {
         is_featured: payload.is_featured,
         specs: payload.specs,
       })
-      .select(
-        `
-        *,
-        categories (
-          id,
-          name,
-          slug
-        ),
-        product_images (
-          id,
-          image_url,
-          position
-        )
-      `,
-      )
+      .select(productSelect)
       .single();
 
     if (error) throw error;
@@ -293,9 +251,7 @@ export const productService = {
 
   async uploadProductImage(file: File): Promise<string> {
     const fileExt = file.name.split(".").pop() ?? "jpg";
-    const fileName = `${Date.now()}-${Math.random()
-      .toString(36)
-      .slice(2)}.${fileExt}`;
+    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
     const filePath = `products/${fileName}`;
 
     const { error: uploadError } = await supabase.storage

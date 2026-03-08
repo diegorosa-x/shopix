@@ -1,4 +1,5 @@
-import { React, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import type { Product, ProductPayload } from "../../types";
 import { useCategories } from "../../features/categories/hooks/useCategories";
 import { productService } from "../../features/products/api/productService";
@@ -37,31 +38,32 @@ export default function ProductForm({
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
-    if (initialData) {
-      setForm({
-        name: initialData.name ?? "",
-        slug: initialData.slug ?? "",
-        description: initialData.description ?? "",
-        price: initialData.price ?? 0,
-        category_id: initialData.category_id ?? "",
-        brand: initialData.brand ?? "",
-        main_image: initialData.main_image ?? "",
-        stock: initialData.stock ?? 0,
-        is_featured: initialData.is_featured ?? false,
-        specs: initialData.specs ?? {},
-      });
-    }
+    if (!initialData) return;
+
+    setForm({
+      name: initialData.name ?? "",
+      slug: initialData.slug ?? "",
+      description: initialData.description ?? "",
+      price: initialData.price ?? 0,
+      category_id: initialData.category_id ?? "",
+      brand: initialData.brand ?? "",
+      main_image: initialData.main_image ?? "",
+      stock: initialData.stock ?? 0,
+      is_featured: initialData.is_featured ?? false,
+      specs: initialData.specs ?? {},
+    });
   }, [initialData]);
 
   const specsText = useMemo(() => {
     if (!form.specs) return "";
+
     return Object.entries(form.specs)
       .map(([key, value]) => `${key}: ${value}`)
       .join("\n");
   }, [form.specs]);
 
   function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) {
     const target = e.target;
     const { name, value } = target;
@@ -105,11 +107,16 @@ export default function ProductForm({
   }
 
   function handleSpecsChange(value: string) {
-    const lines = value.split("\n").filter(Boolean);
+    const lines = value
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
 
     const parsed = lines.reduce<Record<string, string>>((acc, line) => {
       const [key, ...rest] = line.split(":");
+
       if (!key || rest.length === 0) return acc;
+
       acc[key.trim()] = rest.join(":").trim();
       return acc;
     }, {});
@@ -120,9 +127,7 @@ export default function ProductForm({
     }));
   }
 
-  async function handleImageUpload(
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) {
+  async function handleImageUpload(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -142,7 +147,7 @@ export default function ProductForm({
     }
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     if (!form.name.trim()) {
@@ -295,7 +300,7 @@ export default function ProductForm({
               <div className="mt-3 h-24 w-24 overflow-hidden rounded border border-zinc-200 dark:border-zinc-800">
                 <img
                   src={form.main_image}
-                  alt={form.name}
+                  alt={form.name || "Produto"}
                   className="h-full w-full object-cover"
                 />
               </div>

@@ -25,7 +25,7 @@ export default function ProductsList() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { data: products = [], isLoading } = useProducts({});
+  const { data: products = [], isLoading, isFetching } = useProducts({});
   const deleteMutation = useDeleteProduct();
 
   const filteredProducts = useMemo(() => {
@@ -88,11 +88,17 @@ export default function ProductsList() {
             onClick={() => navigate(`/admin/products/${product.id}`)}
             className="h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900"
           >
-            <img
-              src={product.main_image}
-              alt={product.name}
-              className="h-full w-full object-cover"
-            />
+            {product.main_image ? (
+              <img
+                src={product.main_image}
+                alt={product.name}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-xs text-zinc-400">
+                Sem imagem
+              </div>
+            )}
           </button>
 
           <div className="min-w-0">
@@ -216,7 +222,7 @@ export default function ProductsList() {
         data={filteredProducts}
         columns={columns}
         keyField="id"
-        isLoading={isLoading}
+        isLoading={isLoading || isFetching}
         emptyMessage="Nenhum produto encontrado."
         toolbarLeft={toolbarLeft}
         toolbarRight={toolbarRight}

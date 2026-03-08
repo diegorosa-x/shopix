@@ -19,7 +19,7 @@ export const useProduct = (id: string) => {
   return useQuery({
     queryKey: ["product", id],
     queryFn: () => productService.getProductById(id),
-    enabled: !!id,
+    enabled: Boolean(id),
   });
 };
 

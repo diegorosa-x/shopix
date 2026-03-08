@@ -5,8 +5,7 @@ import { Navbar } from "../../components/layout/Navbar";
 import { Footer } from "../../components/layout/Footer";
 import { AdminSidebar } from "../../components/layout/AdminSidebar";
 import { useAuthStore } from "../../store/useAuthStore";
-import { PageLoader } from "@/src/components/shared/PageLoager";
-import { AppShellLoader } from "@/src/components/shared/AppShellLoader";
+import { AppShellLoader } from "../../components/shared/AppShellLoader";
 
 // Public Pages
 const Home = lazy(() => import("../../pages/Home"));
@@ -46,12 +45,6 @@ function MainLayout({ children }: { children: React.ReactNode }) {
 }
 
 function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { user } = useAuthStore();
-
-  if (user?.role !== "admin") {
-    return <Navigate to="/" replace />;
-  }
-
   return (
     <div className="flex min-h-screen bg-zinc-100 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50">
       <AdminSidebar />
