@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { productService } from "../api/productService";
+import type { ProductPayload } from "../../../types";
 
 type ProductFilters = {
   category?: string;
@@ -26,6 +27,39 @@ export const useFeaturedProducts = () => {
   return useQuery({
     queryKey: ["featured-products"],
     queryFn: () => productService.getFeaturedProducts(),
+  });
+};
+
+export const useCreateProduct = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: ProductPayload) => productService.createProduct(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["featured-products"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-products"] });
+    },
+  });
+};
+
+export const useUpdateProduct = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: Partial<ProductPayload>;
+    }) => productService.updateProduct(id, payload),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["product", variables.id] });
+      queryClient.invalidateQueries({ queryKey: ["featured-products"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-products"] });
+    },
   });
 };
 

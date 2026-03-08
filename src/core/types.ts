@@ -1,25 +1,45 @@
-export type Category = string;
-
-export interface Product {
+export type Product = {
   id: string;
   name: string;
   slug: string;
   description: string;
   price: number;
   category_id: string;
-  category_name?: string;
   category_slug?: string;
   brand: string;
   main_image: string;
-  images: string[];
   stock: number;
   is_featured: boolean;
-  specs: Record<string, any>;
-  rating?: number;
-  reviews_count?: number;
+  specs: Record<string, string> | null;
+  rating: number;
+  reviews_count: number;
   created_at: string;
   updated_at: string;
-}
+  images?: {
+    id: string;
+    image_url: string;
+    position: number;
+  }[];
+};
+
+export type Category = {
+  id: string;
+  name: string;
+  slug: string;
+};
+
+export type ProductPayload = {
+  name: string;
+  slug: string;
+  description: string;
+  price: number;
+  category_id: string;
+  brand: string;
+  main_image: string;
+  stock: number;
+  is_featured: boolean;
+  specs: Record<string, string> | null;
+};
 
 export interface CartItem extends Product {
   quantity: number;
@@ -29,16 +49,16 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  role: 'user' | 'admin';
+  role: "user" | "admin";
   avatar?: string;
 }
 
 export type OrderStatus =
-  | 'Pending'
-  | 'Paid'
-  | 'Shipped'
-  | 'Delivered'
-  | 'Cancelled';
+  | "Pending"
+  | "Paid"
+  | "Shipped"
+  | "Delivered"
+  | "Cancelled";
 
 export interface Order {
   id: string;
