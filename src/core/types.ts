@@ -1,17 +1,24 @@
-export type Category = 'Relógios' | 'Óculos' | 'Bolsas' | 'Joias';
+export type Category = string;
 
 export interface Product {
   id: string;
   name: string;
+  slug: string;
   description: string;
   price: number;
-  category: Category;
-  image: string;
-  rating: number;
-  reviewsCount: number;
+  category_id: string;
+  category_name?: string;
+  category_slug?: string;
+  brand: string;
+  main_image: string;
+  images: string[];
   stock: number;
-  isFeatured?: boolean;
-  createdAt: string;
+  is_featured: boolean;
+  specs: Record<string, any>;
+  rating?: number;
+  reviews_count?: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface CartItem extends Product {
@@ -26,7 +33,12 @@ export interface User {
   avatar?: string;
 }
 
-export type OrderStatus = 'Pendente' | 'Pago' | 'Enviado' | 'Entregue' | 'Cancelado';
+export type OrderStatus =
+  | 'Pending'
+  | 'Paid'
+  | 'Shipped'
+  | 'Delivered'
+  | 'Cancelled';
 
 export interface Order {
   id: string;
@@ -52,15 +64,4 @@ export interface DashboardStats {
   totalProducts: number;
   salesData: { date: string; amount: number }[];
   categoryData: { name: string; value: number }[];
-}
-
-export class AppError extends Error {
-  constructor(
-    public message: string,
-    public statusCode: number = 500,
-    public code?: string
-  ) {
-    super(message);
-    this.name = 'AppError';
-  }
 }

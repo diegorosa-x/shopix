@@ -10,13 +10,13 @@ import { useState } from 'react';
 export default function AdminProducts() {
   const [searchTerm, setSearchTerm] = useState('');
   
-  const { data: products, isLoading } = useProducts();
+  const { data: products, isLoading } = useProducts({});
 
   const deleteMutation = useDeleteProduct();
 
   const filteredProducts = products?.filter(p => 
     p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.category.toLowerCase().includes(searchTerm.toLowerCase())
+    p.category_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -81,7 +81,7 @@ export default function AdminProducts() {
                     <td className="py-4">
                       <div className="flex items-center">
                         <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded border border-zinc-200 dark:border-zinc-800">
-                          <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
+                          <img src={product.main_image} alt={product.name} className="h-full w-full object-cover" />
                         </div>
                         <div className="ml-3">
                           <p className="font-medium text-zinc-900 dark:text-zinc-50">{product.name}</p>
@@ -90,7 +90,7 @@ export default function AdminProducts() {
                       </div>
                     </td>
                     <td className="py-4">
-                      <Badge variant="secondary">{product.category}</Badge>
+                      <Badge variant="secondary">{product.category_name}</Badge>
                     </td>
                     <td className="py-4 font-medium text-zinc-900 dark:text-zinc-50">{formatPrice(product.price)}</td>
                     <td className="py-4">
